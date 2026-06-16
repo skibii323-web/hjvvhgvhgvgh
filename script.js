@@ -83,6 +83,10 @@ const translations = {
         letterSpacing: "Letter",
         lineHeight: "Line",
         glow: "Glow",
+        menu3D: "3D",
+        threedDepth: "Depth",
+        threedRotateX: "Rot X",
+        threedRotateY: "Rot Y",
         opacity: "Opacity",
         create: "Create",
         modalTitle: "Ready!",
@@ -92,7 +96,7 @@ const translations = {
         login: "Sign In",
         logout: "Sign Out",
         nothingFound: "Nothing found",
-        modalWarning: "Use the buttons below.<br><strong style='color: #ffcc00; display: block; margin-top: 8px; font-size: 13px;'>If buttons don't work (iPhone/Chrome) — tap and hold the image below and select «Save to Photos» or «Copy».</strong>",
+        modalWarning: "Use the buttons below.<br><strong style='color: #ffcc00; display: block; margin-top: 8px; font-size: 13px;'>If the «Download» and «Copy» buttons aren't working, just press and hold the image below and select «Save to Photos».</strong>",
         copied: "Copied!",
         copyError: "Error copying"
     },
@@ -111,6 +115,10 @@ const translations = {
         letterSpacing: "Межбуквенный",
         lineHeight: "Межстрочный",
         glow: "Свечение",
+        menu3D: "3D",
+        threedDepth: "Глубина",
+        threedRotateX: "Поворот X",
+        threedRotateY: "Поворот Y",
         opacity: "Прозрачность",
         create: "Создать",
         modalTitle: "Готово!",
@@ -120,7 +128,7 @@ const translations = {
         login: "Войти",
         logout: "Выйти",
         nothingFound: "Ничего не найдено",
-        modalWarning: "Используйте кнопки ниже.<br><strong style='color: #ffcc00; display: block; margin-top: 8px; font-size: 13px;'>Если кнопки не работают — просто зажмите картинку ниже пальцем и выберите «Сохранить» или «Скопировать».</strong>",
+        modalWarning: "Используйте кнопки ниже.<br><strong style='color: #ffcc00; display: block; margin-top: 8px; font-size: 13px;'>Если кнопки «Скачать» и «Скопировать» не работают — просто зажмите картинку ниже пальцем и выберите «Сохранить в фото».</strong>",
         copied: "Скопировано!",
         copyError: "Ошибка копирования"
     },
@@ -139,6 +147,10 @@ const translations = {
         letterSpacing: "Міжбуквений",
         lineHeight: "Міжрядковий",
         glow: "Світіння",
+        menu3D: "3D",
+        threedDepth: "Глибина",
+        threedRotateX: "Поворот X",
+        threedRotateY: "Поворот Y",
         opacity: "Прозорість",
         create: "Створити",
         modalTitle: "Готово!",
@@ -148,7 +160,7 @@ const translations = {
         login: "Увійти",
         logout: "Вийти",
         nothingFound: "Нічого не знайдено",
-        modalWarning: "Використовуйте кнопки нижче.<br><strong style='color: #ffcc00; display: block; margin-top: 8px; font-size: 13px;'>Якщо кнопки не працюють — просто затисніть картинку нижче пальцем і виберіть «Зберегти» або «Скопіювати».</strong>",
+        modalWarning: "Використовуйте кнопки нижче.<br><strong style='color: #ffcc00; display: block; margin-top: 8px; font-size: 13px;'>Якщо кнопки «Завантажити» й «Скопіювати» не діють, затисніть зображення нижче та виберіть «Зберегти в фото».</strong>",
         copied: "Скопійовано!",
         copyError: "Помилка копіювання"
     }
@@ -172,6 +184,12 @@ let glowSize = 40;
 let outlineThickness = 0;
 let outlineHue = 0;
 let outlineBrightness = 0;
+
+let threedDepth = 0;
+let threedRotateX = 0;
+let threedRotateY = 0;
+let threedHue = 0;
+let threedBrightness = 50;
 
 let generatedDataUrl = null; 
 
@@ -220,6 +238,17 @@ const outlineColorSlider = document.getElementById('outlineColorSlider');
 const outlineBrightnessSlider = document.getElementById('outlineBrightnessSlider');
 const outlineIndicator = document.getElementById('outlineIndicator');
 const outlineBrightLabel = document.getElementById('outlineBrightLabel');
+
+const threedDepthSlider = document.getElementById('threedDepthSlider');
+const threedRotateXSlider = document.getElementById('threedRotateXSlider');
+const threedRotateYSlider = document.getElementById('threedRotateYSlider');
+const threedColorSlider = document.getElementById('threedColorSlider');
+const threedBrightnessSlider = document.getElementById('threedBrightnessSlider');
+const threedDepthLabel = document.getElementById('threedDepthLabel');
+const threedRotateXLabel = document.getElementById('threedRotateXLabel');
+const threedRotateYLabel = document.getElementById('threedRotateYLabel');
+const threedBrightLabel = document.getElementById('threedBrightLabel');
+const threedIndicator = document.getElementById('threedIndicator');
 
 const searchBtn = document.getElementById('searchBtn');
 const searchPanel = document.getElementById('searchPanel');
@@ -365,7 +394,7 @@ function updateTextColor() {
     indicator.style.backgroundColor = hslColor;
     brightnessSlider.style.background = `linear-gradient(to right, #000000, hsl(${currentHue}, 100%, 50%), #ffffff)`;
 
-    updateGlowDOM();
+    updateAllEffects();
     updateStrokeDOM();
 }
 
@@ -399,35 +428,48 @@ function updateStrokeDOM() {
     }
 }
 
-function updateGlowDOM() {
-    const h = glowHue;
-    const s = '100%';
-    const l = glowBrightness + '%';
-    const a = glowOpacity / 100;
-    
-    const hslColor = `hsl(${h}, ${s}, ${l})`;
-    glowIndicator.style.backgroundColor = hslColor;
-    glowBrightnessSlider.style.background = `linear-gradient(to right, #000000, hsl(${h}, 100%, 50%), #ffffff)`;
+function updateAllEffects() {
+    fontPreview.style.transform = `perspective(1000px) rotateX(${threedRotateX}deg) rotateY(${threedRotateY}deg) skewX(${-currentSkew}deg)`;
+    fontPreview.style.transformStyle = 'preserve-3d';
 
-    if (glowOpacity == 0 || glowSize == 0) {
-        fontPreview.style.textShadow = 'none';
-        return;
-    }
-    
-    const c = `hsla(${h}, ${s}, ${l}, ${a})`;
-    let blurMax = parseInt(glowSize);
-    
+    const glowHsl = `hsl(${glowHue}, 100%, ${glowBrightness}%)`;
+    glowIndicator.style.backgroundColor = glowHsl;
+    glowBrightnessSlider.style.background = `linear-gradient(to right, #000000, hsl(${glowHue}, 100%, 50%), #ffffff)`;
+
+    const threedHsl = `hsl(${threedHue}, 100%, ${threedBrightness}%)`;
+    threedIndicator.style.backgroundColor = threedHsl;
+    threedBrightnessSlider.style.background = `linear-gradient(to right, #000000, hsl(${threedHue}, 100%, 50%), #ffffff)`;
+
     let shadows = [];
-    
-    shadows.push(`0px 0px ${blurMax * 0.15}px ${c}`);
-    shadows.push(`0px 0px ${blurMax * 0.4}px ${c}`);
-    shadows.push(`0px 0px ${blurMax * 0.7}px ${c}`);
-    
-    const outerColor = `hsla(${h}, ${s}, ${l}, ${a * 0.5})`; 
-    shadows.push(`0px 0px ${blurMax * 1.3}px ${outerColor}`);
-    shadows.push(`0px 0px ${blurMax * 2.0}px ${outerColor}`);
 
-    fontPreview.style.textShadow = shadows.join(', ');
+    if (glowOpacity > 0 && glowSize > 0) {
+        const h = glowHue;
+        const s = '100%';
+        const l = glowBrightness + '%';
+        const a = glowOpacity / 100;
+        const c = `hsla(${h}, ${s}, ${l}, ${a})`;
+        let blurMax = parseInt(glowSize);
+        
+        shadows.push(`0px 0px ${blurMax * 0.15}px ${c}`);
+        shadows.push(`0px 0px ${blurMax * 0.4}px ${c}`);
+        shadows.push(`0px 0px ${blurMax * 0.7}px ${c}`);
+        
+        const outerColor = `hsla(${h}, ${s}, ${l}, ${a * 0.5})`; 
+        shadows.push(`0px 0px ${blurMax * 1.3}px ${outerColor}`);
+        shadows.push(`0px 0px ${blurMax * 2.0}px ${outerColor}`);
+    }
+
+    if (threedDepth > 0) {
+        let dx = Math.sin((threedRotateY || 45) * Math.PI / 180) * -1;
+        let dy = Math.sin((threedRotateX || 45) * Math.PI / 180) * 1;
+        if(dx === 0 && dy === 0) { dx = -1; dy = 1; }
+        
+        for (let i = 1; i <= threedDepth; i++) {
+            shadows.push(`${(dx * i).toFixed(1)}px ${(dy * i).toFixed(1)}px 0px ${threedHsl}`);
+        }
+    }
+
+    fontPreview.style.textShadow = shadows.length > 0 ? shadows.join(', ') : 'none';
 }
 
 menuToggleBtn.addEventListener('click', () => {
@@ -515,25 +557,25 @@ brightnessSlider.addEventListener('input', (e) => {
 
 glowColorSlider.addEventListener('input', (e) => {
     glowHue = e.target.value;
-    updateGlowDOM();
+    updateAllEffects();
 });
 
 glowBrightnessSlider.addEventListener('input', (e) => {
     glowBrightness = e.target.value;
     glowBrightLabel.textContent = `${glowBrightness}%`;
-    updateGlowDOM();
+    updateAllEffects();
 });
 
 glowOpacitySlider.addEventListener('input', (e) => {
     glowOpacity = e.target.value;
     glowOpacityLabel.textContent = `${glowOpacity}%`;
-    updateGlowDOM();
+    updateAllEffects();
 });
 
 glowSizeSlider.addEventListener('input', (e) => {
     glowSize = e.target.value;
     glowSizeLabel.textContent = `${glowSize}px`;
-    updateGlowDOM();
+    updateAllEffects();
 });
 
 outlineThicknessSlider.addEventListener('input', (e) => {
@@ -551,6 +593,35 @@ outlineBrightnessSlider.addEventListener('input', (e) => {
     outlineBrightness = e.target.value;
     outlineBrightLabel.textContent = `${outlineBrightness}%`;
     updateStrokeDOM();
+});
+
+threedDepthSlider.addEventListener('input', (e) => {
+    threedDepth = e.target.value;
+    threedDepthLabel.textContent = `${threedDepth}px`;
+    updateAllEffects();
+});
+
+threedRotateXSlider.addEventListener('input', (e) => {
+    threedRotateX = e.target.value;
+    threedRotateXLabel.textContent = `${threedRotateX}°`;
+    updateAllEffects();
+});
+
+threedRotateYSlider.addEventListener('input', (e) => {
+    threedRotateY = e.target.value;
+    threedRotateYLabel.textContent = `${threedRotateY}°`;
+    updateAllEffects();
+});
+
+threedColorSlider.addEventListener('input', (e) => {
+    threedHue = e.target.value;
+    updateAllEffects();
+});
+
+threedBrightnessSlider.addEventListener('input', (e) => {
+    threedBrightness = e.target.value;
+    threedBrightLabel.textContent = `${threedBrightness}%`;
+    updateAllEffects();
 });
 
 weightSlider.addEventListener('input', (e) => {
@@ -574,7 +645,7 @@ lineHeightSlider.addEventListener('input', (e) => {
 skewSlider.addEventListener('input', (e) => {
     currentSkew = e.target.value;
     skewLabel.textContent = `${currentSkew}°`;
-    fontPreview.style.transform = `skewX(${-currentSkew}deg)`;
+    updateAllEffects();
 });
 
 sizeSlider.addEventListener('input', (e) => {
@@ -643,6 +714,9 @@ applyBtn.addEventListener('click', () => {
     
     const skewRad = -currentSkew * Math.PI / 180;
     const skewTan = Math.tan(skewRad);
+    
+    const scaleX = Math.cos(threedRotateY * Math.PI / 180);
+    const scaleY = Math.cos(threedRotateX * Math.PI / 180);
 
     document.fonts.ready.then(() => {
         const testCanvas = document.createElement('canvas');
@@ -676,8 +750,9 @@ applyBtn.addEventListener('click', () => {
 
         const maxGlowBlurCanvas = parseInt(glowSize) * 2.0 * scaleFactor;
         const maxOutlineCanvas = parseInt(outlineThickness) * 2 * scaleFactor;
+        const threedDepthCanvas = parseInt(threedDepth) * scaleFactor;
         const skewExpansion = Math.abs(skewTan * totalTextHeight);
-        const extraMarginCanvas = 15 * scaleFactor + skewExpansion; 
+        const extraMarginCanvas = 15 * scaleFactor + skewExpansion + threedDepthCanvas; 
         const dynamicPadding = maxGlowBlurCanvas + maxOutlineCanvas + extraMarginCanvas;
 
         const canvas = document.createElement('canvas');
@@ -736,7 +811,7 @@ applyBtn.addEventListener('click', () => {
                     let yPosLine = yPos + (i * lineHeight);
                     ctx.save();
                     ctx.translate(xPos, yPosLine);
-                    ctx.transform(1, 0, skewTan, 1, 0, 0);
+                    ctx.transform(scaleX, 0, skewTan, scaleY, 0, 0);
                     
                     if (outlineThickness > 0) {
                         ctx.lineJoin = 'round';
@@ -759,6 +834,38 @@ applyBtn.addEventListener('click', () => {
             ctx.shadowBlur = 0;
         }
 
+        if (threedDepth > 0) {
+            let dx = Math.sin((threedRotateY || 45) * Math.PI / 180) * -1;
+            let dy = Math.sin((threedRotateX || 45) * Math.PI / 180) * 1;
+            if(dx === 0 && dy === 0) { dx = -1; dy = 1; }
+            
+            const depthScaled = threedDepth * scaleFactor;
+            ctx.fillStyle = `hsl(${threedHue}, 100%, ${threedBrightness}%)`;
+            
+            for (let i = depthScaled; i >= 1; i--) { 
+                lines.forEach((line, index) => {
+                    let yPosLine = yPos + (index * lineHeight);
+                    ctx.save();
+                    ctx.translate(xPos + (dx * i), yPosLine + (dy * i));
+                    ctx.transform(scaleX, 0, skewTan, scaleY, 0, 0);
+                    
+                    if (outlineThickness > 0) {
+                        ctx.lineJoin = 'round';
+                        ctx.lineWidth = (scaledOutlineThickness * 2) + weightStroke;
+                        ctx.strokeStyle = ctx.fillStyle; 
+                        ctx.strokeText(line, 0, 0);
+                    } else if (weightValue > 400) {
+                        ctx.lineJoin = 'round';
+                        ctx.lineWidth = weightStroke;
+                        ctx.strokeStyle = ctx.fillStyle;
+                        ctx.strokeText(line, 0, 0);
+                    }
+                    ctx.fillText(line, 0, 0);
+                    ctx.restore();
+                });
+            }
+        }
+
         if (outlineThickness > 0) {
             ctx.lineJoin = 'round';
             ctx.lineCap = 'round';
@@ -768,7 +875,7 @@ applyBtn.addEventListener('click', () => {
                 let yPosLine = yPos + (i * lineHeight);
                 ctx.save();
                 ctx.translate(xPos, yPosLine);
-                ctx.transform(1, 0, skewTan, 1, 0, 0);
+                ctx.transform(scaleX, 0, skewTan, scaleY, 0, 0);
                 ctx.strokeText(line, 0, 0);
                 ctx.restore();
             });
@@ -786,7 +893,7 @@ applyBtn.addEventListener('click', () => {
             let yPosLine = yPos + (i * lineHeight);
             ctx.save();
             ctx.translate(xPos, yPosLine);
-            ctx.transform(1, 0, skewTan, 1, 0, 0);
+            ctx.transform(scaleX, 0, skewTan, scaleY, 0, 0);
             if (weightValue > 400) {
                 ctx.strokeText(line, 0, 0);
             }
@@ -871,4 +978,4 @@ copyImgBtn.addEventListener('click', async () => {
 updateSlider(currentIndex);
 updateTextColor();
 updateStrokeDOM();
-updateGlowDOM();
+updateAllEffects();
