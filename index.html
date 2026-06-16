@@ -70,6 +70,10 @@
                     <img src="ikn/background.svg" alt="Glow">
                     <span data-i18n="glow">Glow</span>
                 </button>
+                <button class="menu-tile threed-tile" data-target="threed-settings">
+                    <img src="ikn/3dlogo.svg" alt="3D">
+                    <span data-i18n="menu3D">3D</span>
+                </button>
             </div>
 
             <div class="sub-panel" id="color-settings">
@@ -158,6 +162,35 @@
                     <span class="control-label" data-i18n="size">Size</span>
                     <input type="range" id="glowSizeSlider" class="range-slider" min="0" max="100" value="40">
                     <span class="control-label" id="glowSizeLabel" style="min-width:35px; text-align:right;">40px</span>
+                </div>
+            </div>
+
+            <div class="sub-panel" id="threed-settings">
+                <button class="back-btn"><img src="ikn/back.svg" alt="Back"></button>
+                <div class="control-box">
+                    <span class="control-label" data-i18n="threedDepth">Depth</span>
+                    <input type="range" id="threedDepthSlider" class="range-slider" min="0" max="100" value="0">
+                    <span class="control-label" id="threedDepthLabel" style="min-width:35px; text-align:right;">0px</span>
+                </div>
+                <div class="control-box">
+                    <span class="control-label" data-i18n="threedRotateX">Rot X</span>
+                    <input type="range" id="threedRotateXSlider" class="range-slider" min="-60" max="60" value="0">
+                    <span class="control-label" id="threedRotateXLabel" style="min-width:35px; text-align:right;">0°</span>
+                </div>
+                <div class="control-box">
+                    <span class="control-label" data-i18n="threedRotateY">Rot Y</span>
+                    <input type="range" id="threedRotateYSlider" class="range-slider" min="-60" max="60" value="0">
+                    <span class="control-label" id="threedRotateYLabel" style="min-width:35px; text-align:right;">0°</span>
+                </div>
+                <div class="control-box">
+                    <span class="control-label" data-i18n="color">Color</span>
+                    <input type="range" id="threedColorSlider" class="range-slider" min="0" max="360" value="0">
+                    <span class="control-label" style="min-width:20px; text-align:right;"><span class="color-indicator" id="threedIndicator"></span></span>
+                </div>
+                <div class="control-box">
+                    <span class="control-label" data-i18n="brightness">Bright</span>
+                    <input type="range" id="threedBrightnessSlider" class="range-slider" min="0" max="100" value="50">
+                    <span class="control-label" id="threedBrightLabel" style="min-width:35px; text-align:right;">50%</span>
                 </div>
             </div>
         </div>
