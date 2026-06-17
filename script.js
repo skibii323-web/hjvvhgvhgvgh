@@ -85,7 +85,7 @@ const translations = {
         glow: "Glow",
         menu3D: "3D",
         threedDepth: "Depth",
-        threedRotateX: "Rot X",
+        threedRotateX: "Rot Xx",
         threedRotateY: "Rot Y",
         opacity: "Opacity",
         create: "Create",
@@ -901,7 +901,64 @@ applyBtn.addEventListener('click', () => {
             ctx.restore();
         });
 
-        generatedDataUrl = canvas.toDataURL("image/png");
+        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imgData.data;
+        const width = canvas.width;
+        const height = canvas.height;
+        let minX = width, minY = height, maxX = -1, maxY = -1;
+
+        for (let y = 0; y < height; y++) {
+            for (let x = 0; x < width; x++) {
+                if (data[(y * width + x) * 4 + 3] > 0) {
+                    minY = y;
+                    break;
+                }
+            }
+            if (minY !== height) break;
+        }
+
+        if (minY !== height) {
+            for (let y = height - 1; y >= minY; y--) {
+                for (let x = 0; x < width; x++) {
+                    if (data[(y * width + x) * 4 + 3] > 0) {
+                        maxY = y;
+                        break;
+                    }
+                }
+                if (maxY !== -1) break;
+            }
+
+            for (let x = 0; x < width; x++) {
+                for (let y = minY; y <= maxY; y++) {
+                    if (data[(y * width + x) * 4 + 3] > 0) {
+                        minX = x;
+                        break;
+                    }
+                }
+                if (minX !== width) break;
+            }
+
+            for (let x = width - 1; x >= minX; x--) {
+                for (let y = minY; y <= maxY; y++) {
+                    if (data[(y * width + x) * 4 + 3] > 0) {
+                        maxX = x;
+                        break;
+                    }
+                }
+                if (maxX !== -1) break;
+            }
+
+            const pad = 15;
+            const finalCanvas = document.createElement('canvas');
+            finalCanvas.width = (maxX - minX + 1) + pad * 2;
+            finalCanvas.height = (maxY - minY + 1) + pad * 2;
+            const finalCtx = finalCanvas.getContext('2d');
+            
+            finalCtx.drawImage(canvas, minX, minY, maxX - minX + 1, maxY - minY + 1, pad, pad, maxX - minX + 1, maxY - minY + 1);
+            generatedDataUrl = finalCanvas.toDataURL("image/png");
+        } else {
+            generatedDataUrl = canvas.toDataURL("image/png");
+        }
 
         const modalBox = downloadModal.querySelector('div');
         
@@ -956,7 +1013,6 @@ confirmDownloadBtn.addEventListener('click', (e) => {
     document.body.removeChild(link);
 });
 
-// Функция для синхронной конвертации Data URL в Blob (Решает проблему с iOS Safari)
 function dataURItoBlob(dataURI) {
     const byteString = atob(dataURI.split(',')[1]);
     const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
@@ -971,7 +1027,6 @@ function dataURItoBlob(dataURI) {
 copyImgBtn.addEventListener('click', async () => {
     if (!generatedDataUrl) return;
     try {
-        // Конвертируем синхронно и сразу отдаем в ClipboardItem
         const blob = dataURItoBlob(generatedDataUrl);
         const item = new ClipboardItem({ 'image/png': blob });
         
