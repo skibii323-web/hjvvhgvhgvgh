@@ -138,7 +138,7 @@ const translations = {
         size: "Розмір",
         searchPlaceholder: "Назва шрифту...",
         color: "Колір",
-        weight: "Жирність",
+        weight: "Жирность",
         outline: "Обведення",
         skew: "Нахил",
         thickness: "Товщина",
@@ -956,18 +956,33 @@ confirmDownloadBtn.addEventListener('click', (e) => {
     document.body.removeChild(link);
 });
 
+// Функция для синхронной конвертации Data URL в Blob (Решает проблему с iOS Safari)
+function dataURItoBlob(dataURI) {
+    const byteString = atob(dataURI.split(',')[1]);
+    const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+    const ab = new ArrayBuffer(byteString.length);
+    const ia = new Uint8Array(ab);
+    for (let i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+    }
+    return new Blob([ab], { type: mimeString });
+}
+
 copyImgBtn.addEventListener('click', async () => {
     if (!generatedDataUrl) return;
     try {
-        const response = await fetch(generatedDataUrl);
-        const blob = await response.blob();
+        // Конвертируем синхронно и сразу отдаем в ClipboardItem
+        const blob = dataURItoBlob(generatedDataUrl);
         const item = new ClipboardItem({ 'image/png': blob });
+        
         await navigator.clipboard.write([item]);
+        
         copyImgBtn.textContent = translations[currentLang].copied;
         setTimeout(() => {
             copyImgBtn.textContent = translations[currentLang].modalCopy;
         }, 2000);
     } catch (err) {
+        console.error(err);
         copyImgBtn.textContent = translations[currentLang].copyError;
         setTimeout(() => {
             copyImgBtn.textContent = translations[currentLang].modalCopy;
